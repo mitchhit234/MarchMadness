@@ -2,17 +2,16 @@ import lxml.html as lh
 import requests
 from bs4 import BeautifulSoup
 from pprint import pprint
+#pip install mysql-connector-python
+#https://computingforgeeks.com/how-to-install-mysql-8-on-fedora/
+import mysql.connector
 
 #Individual Game Data
 #Seed1, Team1, Sc1, Seed2, Team2, Score2, Location
 class Game:
   def __init__(self, s1, t1, sc1, s2, t2, sc2, loc):
-    self.seed1 = s1
-    self.seed2 = s2
-    self.team1 = t1
-    self.team2 = t2
-    self.score1 = sc1
-    self.score2 = sc2
+    self.seed1, self.team1, self.score1 = s1, t1, sc1
+    self.seed2, self.team2, self.score2 = s2, t2, sc2
     self.location = loc
 
   def winner(self):
@@ -94,14 +93,15 @@ def sort_games(raw_games):
   return games
 
 
+all_years = []
 
-URL = 'https://www.sports-reference.com/cbb/postseason/2019-ncaa.html'
+year = 2015
+#while year < 2020:
+  
+URL = 'https://www.sports-reference.com/cbb/postseason/'+str(year)+'-ncaa.html'
 page = requests.get(URL)
 
 soup = BeautifulSoup(page.content, 'html.parser')
-
-#print(soup.prettify())
-
 results = soup.find(id='brackets')
 raw_brackets = results.find_all('div', class_='team16')
 final_four = results.find('div', class_='team4')
@@ -114,7 +114,19 @@ raw_bracket.append(parse_bracket(final_four.text))
 
 #Transform data into game data
 raw_games = extract_game_data(raw_bracket)
-
 # Sort games
 games = sort_games(raw_games)
+
+#
+bracket = []
+for i in games:
+  bracket.append(i.winner())
+
+for i in range(len(games)//2,len(games)):
+  bracket.append(games[i].team1)
+  bracket.append(games[i].team2)
+
+
+
+year += 1
 
