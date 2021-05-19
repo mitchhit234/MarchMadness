@@ -4,7 +4,7 @@ from bs4 import BeautifulSoup
 from pprint import pprint
 #pip install mysql-connector-python
 #https://computingforgeeks.com/how-to-install-mysql-8-on-fedora/
-import mysql.connector
+
 
 #Individual Game Data
 #Seed1, Team1, Sc1, Seed2, Team2, Score2, Location
@@ -59,6 +59,30 @@ def extract_game_data(bracket):
   return raw_games
 
 
+def index_of_winner(G,team):
+  for i in range(len(G)):
+    if G[i].winner() == team:
+      return i
+  return "Error"
+
+
+def web_specific_sort(G):
+  N = []
+  N.append(G.pop(0))
+
+  index = 0
+  while len(G) > 0:
+    current = N[index]
+    pop_index = index_of_winner(G,current.team1)
+    N.append(G.pop(pop_index))
+    pop_index = index_of_winner(G,current.team2)
+    N.append(G.pop(pop_index))
+    index += 1
+
+  return N
+
+
+
 # Resort games from extract_game_data output
 # Games are sorted as a binary tree data structure,
 # with championship game as the root node
@@ -89,6 +113,11 @@ def sort_games(raw_games):
   for rd in rounds:
     for game in rd:
       games.append(game)
+
+  # Account for bizaree mistakes in
+  # ordering on webpage
+
+  games = web_specific_sort(games)
   
   return games
 
@@ -114,10 +143,14 @@ raw_bracket.append(parse_bracket(final_four.text))
 
 #Transform data into game data
 raw_games = extract_game_data(raw_bracket)
-# Sort games
+
+# Sort games, index i=0 is the championship game,
+# Play in games are indexes 2i+1 and 2i+2
 games = sort_games(raw_games)
 
-#
+
+
+#Dont think this is needed anymore
 bracket = []
 for i in games:
   bracket.append(i.winner())
@@ -128,5 +161,4 @@ for i in range(len(games)//2,len(games)):
 
 
 
-year += 1
 
