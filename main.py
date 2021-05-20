@@ -2,8 +2,9 @@ import lxml.html as lh
 import requests
 from bs4 import BeautifulSoup
 from pprint import pprint
-#pip install mysql-connector-python
-#https://computingforgeeks.com/how-to-install-mysql-8-on-fedora/
+import sqlite3
+
+
 
 
 #Individual Game Data
@@ -66,6 +67,23 @@ def index_of_winner(G,team):
   return "Error"
 
 
+def get_seed(G,name):
+  for i in G:
+    if i.team1 == name:
+      return i.seed1
+    elif i.team2 == name:
+      return i.seed2
+  return "Error"
+
+
+def get_wins(G,name):
+  current = 0
+  for i in G:
+    if i.winner() == name:
+      current += 1
+  return current
+  
+
 def web_specific_sort(G):
   N = []
   N.append(G.pop(0))
@@ -122,6 +140,85 @@ def sort_games(raw_games):
   return games
 
 
+
+
+def database_insertion(B,G,Y,cur):
+  ins = "INSERT INTO "
+  vals = "VALUES ("
+  table = "TEAM "
+  n = "NULL, "
+  s = ", "
+
+  #Initial Team Insertion
+  #Prevents Foreign Key Issues from Occuring
+  #Come back later and completley fill out
+  start_64 = len(B)//2
+  #Used for reference later
+  all_teams = []
+  for i in range(start_64,len(B)):
+    name = B[i]
+    all_teams.append(name)
+    e = ins + table + vals + f'"{name}"' + s + 3*n
+    e = e[:-2] + ')'
+    cur.execute(e)
+
+  #Inserting games into GAME Table
+  table = "GAME "
+  for i in range(len(G)):
+    g = G[i]
+    e = ins + table + vals + str(i) + s
+    e += f'"{g.team1}"' + s + f'"{g.team2}"' + s
+    e += str(g.score1) + s + str(g.score2) + s
+    e += f'"{g.winner()}"' + ")"
+    cur.execute(e)
+
+  #Inserting teams into BRACKET table
+  table = "BRACKET "
+  for i in range(len(B)):
+    name = B[i]
+    e = ins + table + vals + str(i) + s + f'"{name}"' + ')'
+    cur.execute(e) 
+
+
+
+  #Finishing TEAM Table
+  up = 'UPDATE TEAM SET seed = '
+  w = 'wins = '
+  p = 'placement = '
+  wh = ' WHERE name = '
+
+
+  d = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite 8','Final 4', 'Runner Up', 'Champion']
+  for i in all_teams:
+    #More efficent to get seed if I start at R64
+    seed = get_seed(G[::-1],i)
+    wins = get_wins(G,i)
+    e = up + str(seed) + s + w + str(wins) + s
+    e += p + f'"{d[wins]}"' + wh + f'"{i}"'
+    cur.execute(e)
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+connection = sqlite3.connect('test.db')
+cursor = connection.cursor()
+cursor.execute("PRAGMA foreign_keys = ON")
+
 all_years = []
 
 year = 2015
@@ -149,8 +246,6 @@ raw_games = extract_game_data(raw_bracket)
 games = sort_games(raw_games)
 
 
-
-#Dont think this is needed anymore
 bracket = []
 for i in games:
   bracket.append(i.winner())
@@ -161,4 +256,6 @@ for i in range(len(games)//2,len(games)):
 
 
 
+database_insertion(bracket,games,year,cursor)
 
+connection.commit()
