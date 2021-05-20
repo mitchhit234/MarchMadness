@@ -5,8 +5,6 @@ from pprint import pprint
 import sqlite3
 
 
-
-
 #Individual Game Data
 #Seed1, Team1, Sc1, Seed2, Team2, Score2, Location
 class Game:
@@ -16,7 +14,7 @@ class Game:
     self.location = loc
 
   def winner(self):
-    return self.team1 if self.score1 > self.score2 else self.team2
+    return self.team1 if int(self.score1) > int(self.score2) else self.team2
       
   def margin_of_victory(self):
     return abs(self.score1-self.score2)
@@ -143,30 +141,30 @@ def sort_games(raw_games):
 
 
 def database_insertion(B,G,Y,cur):
+  Y = str(Y)
   ins = "INSERT INTO "
   vals = "VALUES ("
   table = "TEAM "
   n = "NULL, "
   s = ", "
 
-  #Initial Team Insertion
-  #Prevents Foreign Key Issues from Occuring
-  #Come back later and completley fill out
+  #TEAM Table Insetion
+  #Done first for foreign key constriants
+  d = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite 8','Final 4', 'Runner Up', 'Champion']
   start_64 = len(B)//2
-  #Used for reference later
-  all_teams = []
   for i in range(start_64,len(B)):
     name = B[i]
-    all_teams.append(name)
-    e = ins + table + vals + f'"{name}"' + s + 3*n
-    e = e[:-2] + ')'
+    seed = str(get_seed(G,B[i]))
+    wins = str(get_wins(G,B[i]))
+    e = ins + table + vals + f'"{name}"' + s + Y + s
+    e += seed + s + wins + s + f'"{d[int(wins)]}"' + ')'
     cur.execute(e)
 
   #Inserting games into GAME Table
   table = "GAME "
   for i in range(len(G)):
     g = G[i]
-    e = ins + table + vals + str(i) + s
+    e = ins + table + vals + str(i) + s + Y + s
     e += f'"{g.team1}"' + s + f'"{g.team2}"' + s
     e += str(g.score1) + s + str(g.score2) + s
     e += f'"{g.winner()}"' + ")"
@@ -176,7 +174,8 @@ def database_insertion(B,G,Y,cur):
   table = "BRACKET "
   for i in range(len(B)):
     name = B[i]
-    e = ins + table + vals + str(i) + s + f'"{name}"' + ')'
+    e = ins + table + vals + str(i) + s 
+    e += Y + s +  f'"{name}"' + ')'
     cur.execute(e) 
 
 
@@ -188,74 +187,55 @@ def database_insertion(B,G,Y,cur):
   wh = ' WHERE name = '
 
 
-  d = ['Round of 64', 'Round of 32', 'Sweet 16', 'Elite 8','Final 4', 'Runner Up', 'Champion']
-  for i in all_teams:
-    #More efficent to get seed if I start at R64
-    seed = get_seed(G[::-1],i)
-    wins = get_wins(G,i)
-    e = up + str(seed) + s + w + str(wins) + s
-    e += p + f'"{d[wins]}"' + wh + f'"{i}"'
-    cur.execute(e)
 
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-connection = sqlite3.connect('test.db')
+connection = sqlite3.connect('bracket_data.db')
 cursor = connection.cursor()
 cursor.execute("PRAGMA foreign_keys = ON")
 
 all_years = []
 
-year = 2015
-#while year < 2020:
+year = 1985
+
+while year < 2020:
   
-URL = 'https://www.sports-reference.com/cbb/postseason/'+str(year)+'-ncaa.html'
-page = requests.get(URL)
+  URL = 'https://www.sports-reference.com/cbb/postseason/'+str(year)+'-ncaa.html'
+  page = requests.get(URL)
 
-soup = BeautifulSoup(page.content, 'html.parser')
-results = soup.find(id='brackets')
-raw_brackets = results.find_all('div', class_='team16')
-final_four = results.find('div', class_='team4')
+  soup = BeautifulSoup(page.content, 'html.parser')
+  results = soup.find(id='brackets')
+  raw_brackets = results.find_all('div', class_='team16')
+  final_four = results.find('div', class_='team4')
 
-raw_bracket = []
-for i in raw_brackets:
-  #Read in bracket by region
-  raw_bracket.append(parse_bracket(i.text))
-raw_bracket.append(parse_bracket(final_four.text))
+  raw_bracket = []
+  for i in raw_brackets:
+    #Read in bracket by region
+    raw_bracket.append(parse_bracket(i.text))
+  raw_bracket.append(parse_bracket(final_four.text))
 
-#Transform data into game data
-raw_games = extract_game_data(raw_bracket)
+  #Transform data into game data
+  raw_games = extract_game_data(raw_bracket)
 
-# Sort games, index i=0 is the championship game,
-# Play in games are indexes 2i+1 and 2i+2
-games = sort_games(raw_games)
-
-
-bracket = []
-for i in games:
-  bracket.append(i.winner())
-
-for i in range(len(games)//2,len(games)):
-  bracket.append(games[i].team1)
-  bracket.append(games[i].team2)
+  # Sort games, index i=0 is the championship game,
+  # Play in games are indexes 2i+1 and 2i+2
+  games = sort_games(raw_games)
 
 
+  bracket = []
+  for i in games:
+    bracket.append(i.winner())
 
-database_insertion(bracket,games,year,cursor)
+  for i in range(len(games)//2,len(games)):
+    bracket.append(games[i].team1)
+    bracket.append(games[i].team2)
+
+
+  database_insertion(bracket,games,year,cursor)
+
+  print(year)
+  year += 1
+
+
 
 connection.commit()
