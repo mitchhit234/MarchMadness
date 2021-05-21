@@ -37,6 +37,8 @@ CREATE TABLE BRACKET (
 );
 
 
+SELECT seed, team1, team2 FROM TEAM INNER JOIN GAME ON (TEAM.name = GAME.team1 OR TEAM.name = GAME.team2)
+WHERE GAME.year = 1987 AND  TEAM.year = 1987 AND TEAM.name = 'Duke'
 
 
 

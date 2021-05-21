@@ -15,6 +15,15 @@ class Game:
 
   def winner(self):
     return self.team1 if int(self.score1) > int(self.score2) else self.team2
+
+  def loser(self):
+    return self.team1 if int(self.score1) < int(self.score2) else self.team2
+
+  def w_score(self):
+    return self.score1 if self.score1 > self.score2 else self.score2
+
+  def l_score(self):
+    return self.score1 if self.score1 < self.score2 else self.score2
       
   def margin_of_victory(self):
     return abs(self.score1-self.score2)
@@ -165,9 +174,8 @@ def database_insertion(B,G,Y,cur):
   for i in range(len(G)):
     g = G[i]
     e = ins + table + vals + str(i) + s + Y + s
-    e += f'"{g.team1}"' + s + f'"{g.team2}"' + s
-    e += str(g.score1) + s + str(g.score2) + s
-    e += f'"{g.winner()}"' + ")"
+    e += f'"{g.winner()}"' + s + f'"{g.loser()}"' + s
+    e += str(g.w_score()) + s + str(g.l_score()) + ")"
     cur.execute(e)
 
   #Inserting teams into BRACKET table
