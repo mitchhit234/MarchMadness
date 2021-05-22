@@ -14,13 +14,12 @@ CREATE TABLE TEAM (
 CREATE TABLE GAME (
 	bracket_position TINYINT UNSIGNED,
 	year SMALLINT UNSIGNED,
-	team1 TINYTEXT NOT NULL,
-	team2 TINYTEXT NOT NULL,
-	score1 TINYINT UNSIGNED NOT NULL,
-	score2 TINYINT UNSIGNED NOT NULL,
-	winner BIT NOT NULL,
-	CONSTRAINT FK_GAME_TEAM_1 FOREIGN KEY (team1,year) REFERENCES TEAM(name,year),
-	CONSTRAINT FK_GAME_TEAM_2 FOREIGN KEY (team2,year) REFERENCES TEAM(name,year),
+	winning_team TINYTEXT NOT NULL,
+	losing_team TINYTEXT NOT NULL,
+	winning_score TINYINT UNSIGNED NOT NULL,
+	losing_score TINYINT UNSIGNED NOT NULL,
+	CONSTRAINT FK_GAME_TEAM_1 FOREIGN KEY (winning_team,year) REFERENCES TEAM(name,year),
+	CONSTRAINT FK_GAME_TEAM_2 FOREIGN KEY (losing_team,year) REFERENCES TEAM(name,year),
 	CONSTRAINT CHK_GAME CHECK (0 <= bracket_position <= 62),
 	PRIMARY KEY (bracket_position, year)
 );
@@ -37,12 +36,23 @@ CREATE TABLE BRACKET (
 );
 
 
-SELECT seed, team1, team2 FROM TEAM INNER JOIN GAME ON (TEAM.name = GAME.team1 OR TEAM.name = GAME.team2)
-WHERE GAME.year = 1987 AND  TEAM.year = 1987 AND TEAM.name = 'Duke'
+
+SELECT bracket_position, TEAM.year, winning_team , losing_team, seed FROM GAME INNER JOIN TEAM 
+ON (TEAM.name = GAME.winning_team AND TEAM.year = GAME.year AND TEAM.year = 1985)
+
+SELECT bracket_position, TEAM.year, losing_team, seed FROM GAME INNER JOIN TEAM 
+ON (TEAM.name = GAME.losing_team AND TEAM.year = GAME.year AND TEAM.year = 1985)
 
 
-
-/*SELECT * FROM TEAM
+/*
+SELECT * FROM TEAM
 SELECT * FROM GAME
 SELECT * FROM BRACKET 
-*/
+
+
+DROP TABLE TEAM 
+DROP TABLE GAME 
+DROP TABLE BRACKET
+
+
+
