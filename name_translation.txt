@@ -1,0 +1,83 @@
+Abilene Christian,Abilene Chr
+Alabama-Birmingham,UAB
+Albany (NY),Albany NY
+American,American Univ
+Arizona State,Arizona St
+Arkansas-Pine Bluff,Ark Pine Bluff
+Boston University,Boston Univ
+Cal Poly,Cal Poly SLO
+Cal State Bakersfield,CS Bakersfield
+Cal State Fullerton,CS Fullerton
+Coastal Carolina,Coastal Car
+College of Charleston,Col Charleston
+Colorado State,Colorado St
+Eastern Kentucky,E Kentucky
+Eastern Washington,E Washington
+Fairleigh Dickinson,F Dickinson
+Florida Gulf Coast,FL Gulf Coast
+Florida State,Florida St
+Fresno State,Fresno St
+Gardner-Webb,Gardner Webb
+George Washington,G Washington
+Georgia State,Georgia St
+Green Bay,WI Green Bay
+Indiana State,Indiana St
+Iowa State,Iowa St
+Jacksonville State,Jacksonville St
+Kansas State,Kansas St
+Kent State,Kent
+LIU,Long Island
+Little Rock,Ark Little Rock
+Long Beach State,Long Beach St
+Louisiana,ULM
+Loyola (IL),Loyola-Chicago
+Loyola (MD),Loyola MD
+Miami (FL),Miami FL
+Michigan State,Michigan St
+Middle Tennessee,MTSU
+Milwaukee,WI Milwaukee
+Mississippi State,Mississippi St
+Morehead State,Morehead St
+Morgan State,Morgan St
+Mount St. Mary's,Mt St Mary's
+Murray State,Murray St
+New Mexico State,New Mexico St
+Norfolk State,Norfolk St
+North Carolina A&T,NC A&T
+North Carolina Central,NC Central
+North Dakota State,N Dakota St
+Northern Colorado,N Colorado
+Northern Kentucky,N Kentucky
+Northwestern State,Northwestern LA
+Ohio State,Ohio St
+Oklahoma State,Oklahoma St
+Ole Miss,Mississippi
+Oregon State,Oregon St
+Penn State,Penn St
+Pitt,Pittsburgh
+Saint Louis,St Louis
+Saint Mary's,St Mary's CA
+Sam Houston State,Sam Houston St
+San Diego State,San Diego St
+South Dakota State,S Dakota St
+Southern,Southern Univ
+St. Bonaventure,St Bonaventure
+St. John's (NY),St John's
+St. Joseph's,St Joseph's PA
+St. Peter's,St Peter's
+Stephen F. Austin,SF Austin
+Texas Southern,TX Southern
+UC-Davis,UC Davis
+UC-Irvine,UC Irvine
+UCSB,Santa Barbara
+UConn,Connecticut
+UMass,Massachusetts
+UNC,North Carolina
+UTSA,UT San Antonio
+Utah State,Utah St
+VCU,VA Commonwealth
+Weber State,Weber St
+Western Kentucky,W Kentucky
+Western Michigan,W Michigan
+Wichita State,Wichita St
+Wright State,Wright St
