@@ -81,7 +81,7 @@ def check_translation(st,t,b):
 #Insert all ranking values after our columns are added
 #Don't insert ranking values for teams that arent already
 #in the database, we only want teams that are in march madness
-def database_insertion(name,year,rankings,p,t,b,cursor):
+def database_insertion(name,year,rankings,p,t,b,cur):
   year = str(year)
   name = check_translation(name,t,b)
   if in_bracket(name,year,cur):
