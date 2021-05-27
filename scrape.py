@@ -1,7 +1,5 @@
-import lxml.html as lh
 import requests
 from bs4 import BeautifulSoup
-from pprint import pprint
 import sqlite3
 
 
@@ -90,7 +88,9 @@ def get_wins(G,name):
       current += 1
   return current
   
-
+#Used for scenarios where website 
+#sorts information in different region
+#order sometimes
 def web_specific_sort(G):
   N = []
   N.append(G.pop(0))
@@ -147,6 +147,16 @@ def sort_games(raw_games):
   return games
 
 
+def fill_bracket(G):
+  bracket = []
+  for i in G:
+    bracket.append(i.winner())
+
+  for i in range(len(G)//2,len(G)):
+    bracket.append(G[i].team1)
+    bracket.append(G[i].team2)
+
+  return bracket
 
 
 def database_insertion(B,G,Y,cur):
@@ -197,53 +207,49 @@ def database_insertion(B,G,Y,cur):
 
 
 
+if __name__ == "__main__":
 
-connection = sqlite3.connect('bracket_data.db')
-cursor = connection.cursor()
-cursor.execute("PRAGMA foreign_keys = ON")
+  connection = sqlite3.connect('bracket_data.db')
+  cursor = connection.cursor()
+  cursor.execute("PRAGMA foreign_keys = ON")
 
-all_years = []
+  all_years = []
 
-year = 1985
+  year = 1985
 
-while year < 2020:
-  
-  URL = 'https://www.sports-reference.com/cbb/postseason/'+str(year)+'-ncaa.html'
-  page = requests.get(URL)
+  while year < 2020:
+    
+    URL = 'https://www.sports-reference.com/cbb/postseason/'+str(year)+'-ncaa.html'
+    page = requests.get(URL)
 
-  soup = BeautifulSoup(page.content, 'html.parser')
-  results = soup.find(id='brackets')
-  raw_brackets = results.find_all('div', class_='team16')
-  final_four = results.find('div', class_='team4')
+    soup = BeautifulSoup(page.content, 'html.parser')
+    results = soup.find(id='brackets')
+    raw_brackets = results.find_all('div', class_='team16')
+    final_four = results.find('div', class_='team4')
 
-  raw_bracket = []
-  for i in raw_brackets:
-    #Read in bracket by region
-    raw_bracket.append(parse_bracket(i.text))
-  raw_bracket.append(parse_bracket(final_four.text))
+    raw_bracket = []
+    for i in raw_brackets:
+      #Read in bracket by region
+      raw_bracket.append(parse_bracket(i.text))
+    raw_bracket.append(parse_bracket(final_four.text))
 
-  #Transform data into game data
-  raw_games = extract_game_data(raw_bracket)
+    #Transform data into game data
+    raw_games = extract_game_data(raw_bracket)
 
-  # Sort games, index i=0 is the championship game,
-  # Play in games are indexes 2i+1 and 2i+2
-  games = sort_games(raw_games)
+    # Sort games, index i=0 is the championship game,
+    # Play in games are indexes 2i+1 and 2i+2
+    games = sort_games(raw_games)
 
+    #Easy to insert bracket array
+    #Represented as Binary Tree, champ as root
+    bracket = fill_bracket(games)
 
-  bracket = []
-  for i in games:
-    bracket.append(i.winner())
+    #Throws error if table_creation.sql isnt 
+    #run or the database is already filled
+    database_insertion(bracket,games,year,cursor)
 
-  for i in range(len(games)//2,len(games)):
-    bracket.append(games[i].team1)
-    bracket.append(games[i].team2)
+    #Shows Progress
+    print(year)
+    year += 1
 
-
-  database_insertion(bracket,games,year,cursor)
-
-  print(year)
-  year += 1
-
-
-
-connection.commit()
+  connection.commit()
