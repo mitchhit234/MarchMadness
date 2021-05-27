@@ -25,7 +25,6 @@ CREATE TABLE GAME (
 );
 
 
-
 CREATE TABLE BRACKET (
 	spot TINYINT UNSIGNED,
 	year SMALLINT UNSIGNED,
@@ -37,22 +36,26 @@ CREATE TABLE BRACKET (
 
 
 
-SELECT bracket_position, TEAM.year, winning_team , losing_team, seed FROM GAME INNER JOIN TEAM 
-ON (TEAM.name = GAME.winning_team AND TEAM.year = GAME.year AND TEAM.year = 1985)
-
-SELECT bracket_position, TEAM.year, losing_team, seed FROM GAME INNER JOIN TEAM 
-ON (TEAM.name = GAME.losing_team AND TEAM.year = GAME.year AND TEAM.year = 1985)
-
-
 /*
-SELECT * FROM TEAM
-SELECT * FROM GAME
-SELECT * FROM BRACKET 
+This part was only used for inital seed only model, not needed for final model 
+The SQL for creating ranking columns is in rankings.py
+Insertion is done through scripts
 
+CREATE VIEW v1(bracket_position, year, winning_team, winning_seed, winning_bih)
+AS
+SELECT bracket_position, TEAM.year, winning_team, seed, TEAM.bih FROM GAME INNER JOIN TEAM 
+ON (TEAM.name = GAME.winning_team AND TEAM.year = GAME.year) WHERE GAME.year > 2009
 
-DROP TABLE TEAM 
-DROP TABLE GAME 
-DROP TABLE BRACKET
+CREATE VIEW v2(bracket_position, year, losing_team, losing_seed, losing_bih)
+AS
+SELECT bracket_position, TEAM.year, losing_team, seed, TEAM.bih FROM GAME INNER JOIN TEAM 
+ON (TEAM.name = GAME.losing_team AND TEAM.year = GAME.year) WHERE GAME.year > 2009
 
-
-
+CREATE VIEW v3(year, winning_team, losing_team, 
+winning_seed, losing_seed, winning_bih, losing_bih, seed_diff, result)
+AS 
+SELECT v1.year, winning_team, losing_team, winning_seed, 
+losing_seed, winning_bih, losing_bih, (winning_seed - losing_seed), 1
+FROM v1 INNER JOIN v2
+ON (v1.bracket_position = v2.bracket_position AND v1.year = v2.year)
+*/
