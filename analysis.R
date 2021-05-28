@@ -51,6 +51,9 @@ probability_matrix <- function(game_table) {
   for(row in 1:16){
     for(col in 1:16){
       if (row == col){
+        #When i and j are equal, and games have 
+        #existed where i == j, then we just
+        #default the winrate to 50%
         if (mat[row,col] > 0){
           prob_mat[row,col] = 0.5
         }
@@ -98,7 +101,8 @@ loss_over_period <- function(model, beg, end, conn) {
 }
 
 
-
+#The output of this function will provide the 
+#data needed for our multipule logisitc regression model
 model_dataframe <- function(query) {
   #Initializing the dataframe and column names
   #Each column represents the difference between
@@ -134,7 +138,9 @@ model_dataframe <- function(query) {
   return(output)
 }
 
-
+#Returns the percentage of games that are predicted 
+#correctly, does not account for predicting games
+#derived from the current game correctly
 games_correct <- function(model, frame) {
   prob <- predict(model, type='response')
   correct <- 0
@@ -149,6 +155,8 @@ games_correct <- function(model, frame) {
   }
   return(correct/length(prob))
 }
+
+
 
 
 
@@ -192,9 +200,3 @@ df <- model_dataframe(m)
 improved_model <- glm(result~., data=df, family=binomial)
 anova(improved_model, test="Chisq")
 #test_model <- glm(result~dol+pgh+cng+pom+cng, data=df, family=binomial)
-
-
-
-
-
-
