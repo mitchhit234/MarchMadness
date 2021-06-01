@@ -4,7 +4,7 @@ import sqlite3
 
 
 #Individual Game Data
-#Seed1, Team1, Sc1, Seed2, Team2, Score2, Locatio
+#Seed1, Team1, Sc1, Seed2, Team2, Score2, Location
 class Game:
   def __init__(self, s1, t1, sc1, s2, t2, sc2, loc):
     self.seed1, self.team1, self.score1 = s1, t1, sc1
